@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server-Controlled Countdown Timer</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1, p { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Countdown Timer</h1>
+    <p id="countdown"></p>
+
+    <script>
+        // Function to get current time from server and update the countdown
+        async function fetchCountdown() {
+            try {
+                const response = await fetch('/current-time');
+                const data = await response.json();
+                startCountdown(data.remainingTime);
+            } catch (error) {
+                console.error('Error fetching countdown:', error);
+            }
+        }
+
+        // Function to start the countdown
+        function startCountdown(timeLeft) {
+            const countdownElement = document.getElementById('countdown');
+
+            function updateCountdown() {
+                countdownElement.innerText = timeLeft;
+
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateCountdown, 1000);
+                } else {
+                    countdownElement.innerText = "Time's up!";
+                }
+            }
+
+            updateCountdown();
+        }
+
+        window.addEventListener('load', fetchCountdown);
+
+        // Prevent page refresh and navigation (Discourage refreshing)
+        window.onbeforeunload = function() {
+            return "Refreshing the page may cause you to lose progress.";
+        };
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.which || e.keyCode) == 116 || (e.which || e.keyCode) == 82 && e.ctrlKey) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
